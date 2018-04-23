@@ -6,6 +6,10 @@ import itchat
 import pandas
 import re
 import jieba
+import matplotlib.pyplot as plt 
+from wordcloud import WordCloud, ImageColorGenerator 
+import numpy as np 
+import PIL.Image as Image
 
 itchat.login()
 friends = itchat.get_friends(update=True)[0:] 
@@ -52,6 +56,8 @@ frame.to_csv(PATH,index=True)
 
 signature_new_list = []
 
+#对列表中的每个元素中的符号等部分进行清除、替换。
+#re是Regular Expresion包，正规整理。
 for i in signature_data_list:
     signature = i.strip().replace("span","").replace("emoji","").replace("class","")
     pattern = re.compile("1f\d+\w*|[<>/=]")
@@ -59,5 +65,17 @@ for i in signature_data_list:
     signature_new_list.append(signature)
 signature_text = "".join(signature_new_list)
 
-signature_wordlist = jieba.cut(signature_text)
+#jieba进行分词，对中文语句进行词语切割
+signature_wordlist = jieba.cut(signature_text) 
 signature_wordlist = " ".join(signature_wordlist)
+
+#以下代码为生成词云
+coloring = np.array(Image.open("D:\cloud.jpg")) 
+my_wordcloud = WordCloud(background_color="white", max_words=2000, 
+                         mask=coloring, max_font_size=60, random_state=42, scale=2).generate(signature_wordlist) 
+ 
+image_colors = ImageColorGenerator(coloring) 
+plt.imshow(my_wordcloud.recolor(color_func=image_colors)) 
+plt.imshow(my_wordcloud) 
+plt.axis("off") 
+plt.show() 
